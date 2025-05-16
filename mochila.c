@@ -2,10 +2,22 @@
 
 int calculaValorOtimo(int valorItens[], int pesoItens[], int numeroItens, int capacidadeMochila) {
     int valorOtimo = 0;
+    int matrizOtima[numeroItens + 1][capacidadeMochila + 1];
 
     for (int i = 0; i < numeroItens; i++) {
-
+        for (int j = 0; j < capacidadeMochila; j++) {
+            matrizOtima[i][j] = 0;
+        }
     }
+
+    for (int i = 0; i < numeroItens; i++) {
+        for (int j = 0; j < capacidadeMochila; j++) {
+
+        }
+    }
+
+    // valorOtimo = matrizOtima[numeroItens][capacidadeMochila];
+    return valorOtimo;
 }
 
 int calculaValorTentativa(int solucoes[], int valorItens[], int pesoItens[], int numeroItens, int capacidadeMochila) {
@@ -19,25 +31,27 @@ int calculaValorTentativa(int solucoes[], int valorItens[], int pesoItens[], int
         pesoTotal += pesoTotalItem;
         if (pesoTotal > capacidadeMochila) return -1;
     }
+
+    return valorTentativa;
 }
 
 int main () {
     int capacidadeMochila, numeroItens;
-    scanf("%d\n", &capacidadeMochila);
+    scanf("%d", &capacidadeMochila);
 
-    scanf("%d\n", &numeroItens);
+    scanf("%d", &numeroItens);
 
-    int pesoItens[numeroItens], valorItens[numeroItens], solucoes[numeroItens];
+    int pesoItens[numeroItens], valorItens[numeroItens], tentativa[numeroItens];
 
     for (int i = 0; i<numeroItens; i++) {
-        scanf("%d %d\n", &pesoItens[i], &valorItens[i]);
+        scanf("%d %d", &pesoItens[i], &valorItens[i]);
     }
 
     for (int i = 0; i<numeroItens; i++) {
-        scanf("%d\n", &solucoes[i]);
+        scanf("%d", &tentativa[i]);
     }
 
-    int valorTentativa = calculaValorTentativa(solucoes, pesoItens, valorItens, numeroItens, capacidadeMochila);
+    int valorTentativa = calculaValorTentativa(tentativa, valorItens, pesoItens, numeroItens, capacidadeMochila);
 
     if (valorTentativa == -1) {
         printf("Solucao inviavel.");
