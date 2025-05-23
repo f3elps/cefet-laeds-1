@@ -1,27 +1,25 @@
 #include <stdio.h>
 
 int calculaMaximo(int a, int b) {
-    if (a < b) return b;
-    return a;
+    return (a > b) ? a : b;
 }
 
 int calculaValorOtimo(int valorItens[], int pesoItens[], int numeroItens, int capacidadeMochila) {
     int valorOtimo = 0;
     int matrizOtima[numeroItens + 1][capacidadeMochila + 1];
 
-    for (int i = 0; i < numeroItens; i++) {
-        for (int j = 0; j < capacidadeMochila; j++) {
-            // fazer programação dinâmica:
-            // calcular qual o maior valor possível com a capacidade j e os do item 0 ate o i
+    for (int i = 0; i <= numeroItens; i++) {
+        for (int j = 0; j <= capacidadeMochila; j++) {
             if (i == 0 || j == 0) {
                 matrizOtima[i][j] = 0;
-            } else if (pesoItens[i-1] <= j) {
-                matrizOtima[i][j] = calculaMaximo(matrizOtima[i-1][j-1] + valorItens[i-1], matrizOtima[i-1][j]);
+            } else if (pesoItens[i - 1] <= j) {
+                matrizOtima[i][j] = calculaMaximo(
+                    valorItens[i - 1] + matrizOtima[i - 1][j - pesoItens[i - 1]],
+                    matrizOtima[i - 1][j]
+                );
             } else {
-                matrizOtima[i][j] = matrizOtima[i-1][j];
+                matrizOtima[i][j] = matrizOtima[i - 1][j];
             }
-
-            
         }
     }
 
@@ -44,39 +42,35 @@ int calculaValorTentativa(int tentativa[], int valorItens[], int pesoItens[], in
     return valorTentativa;
 }
 
-int main () {
+int main() {
     int capacidadeMochila, numeroItens;
     scanf("%d", &capacidadeMochila);
-
     scanf("%d", &numeroItens);
 
     int pesoItens[numeroItens], valorItens[numeroItens], tentativa[numeroItens];
 
-    for (int i = 0; i<numeroItens; i++) {
+    for (int i = 0; i < numeroItens; i++) {
         scanf("%d %d", &pesoItens[i], &valorItens[i]);
     }
 
-    for (int i = 0; i<numeroItens; i++) {
+    for (int i = 0; i < numeroItens; i++) {
         scanf("%d", &tentativa[i]);
     }
 
     int valorTentativa = calculaValorTentativa(tentativa, valorItens, pesoItens, numeroItens, capacidadeMochila);
 
     if (valorTentativa == -1) {
-        printf("Solucao inviavel.");
+        printf("Solucao inviavel.\n");
         return 0;
     }
 
     int valorOtimo = calculaValorOtimo(valorItens, pesoItens, numeroItens, capacidadeMochila);
 
-    printf("Valor otimo: %d", valorOtimo);
-    printf("Valor Tentativa: %d", valorTentativa);
-
     if (valorTentativa != valorOtimo) {
-        printf("Solucao viavel mas nao otima.");
-        return 0;
+        printf("Solucao viavel mas nao otima.\n");
     } else {
-        printf("Solucao otima.");
-        return 0;
+        printf("Solucao otima.\n");
     }
+
+    return 0;
 }
