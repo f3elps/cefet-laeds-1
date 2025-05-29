@@ -17,7 +17,48 @@ void ordena (int v[],int n){
  }
 }
 
-void contarElementosSegmento(int **matriz, int k, int vetor[], int numeroSegmentos) {
+void contaTipoSegmento(int **matriz, int k, int vetor[], int numeroSegmentos) {
+    int segmentoAtual = 0;
+    int vetorSingular[numeroSegmentos];
+
+    for (int i = 0; i < k - 1; i++) {
+        if (vetor[i] != vetor[i + 1]) {
+            vetorSingular[segmentoAtual] = vetor[i];
+            segmentoAtual++;
+        }
+    }
+
+    vetorSingular[numeroSegmentos-1] = vetor[k-1];
+
+    int vetorSingularOrdenado[numeroSegmentos];
+    int countOrdenado = 0;
+
+    for (int i = 0; i < numeroSegmentos; i++) {
+        int duplicado = 0;
+        for (int j = 0; j < countOrdenado; j++) {
+            if (vetorSingular[i] == vetorSingularOrdenado[j]) {
+                duplicado = 1;
+                break;
+            }
+        }
+        if (!duplicado) {
+            vetorSingularOrdenado[countOrdenado++] = vetorSingular[i];
+        }
+    }
+
+    ordena(vetorSingularOrdenado, countOrdenado);
+
+    for (int i = 0; i < numeroSegmentos; i++) {
+        for (int j = 0; j < numeroSegmentos; j++) {
+            if (vetorSingular[i] == vetorSingularOrdenado[j]) {
+                matriz[0][i] = j + 1;
+                break;
+            }
+        }
+    }
+}
+
+void contarElementosSegmento(int **matriz, int k, int vetor[]) {
     int segmentoAtual = 0;
     for (int i = 0; i < k - 1; i++) {
         if (vetor[i] != vetor[i + 1]) {
@@ -31,7 +72,6 @@ void contarElementosSegmento(int **matriz, int k, int vetor[], int numeroSegment
 int main () {
     int **matriz, k;
 
-    printf("Digite o número de elementos: ");
     scanf("%d", &k);
 
     int vetor[k];
@@ -40,7 +80,6 @@ int main () {
 
 
     for (int i = 0; i < k; i++) {
-        printf("Digite o %d° elemento: \n", i + 1);
         scanf("%d", &vetor[i]);
     }
 
@@ -54,11 +93,7 @@ int main () {
     // O primeiro segmento sempre existe
     numeroSegmentos++;
     
-    printf("Numero de segmentos: %d\n", numeroSegmentos);
-
     int vetorSingular[numeroSegmentos];
-
-    ordena(vetor, k);
 
     for (int i = 0; i < 2; i ++) {
         matriz[i] = (int *) malloc(numeroSegmentos * sizeof(int));
@@ -70,7 +105,17 @@ int main () {
         }
     }
 
-    contarElementosSegmento(matriz, k, vetor, numeroSegmentos);
+    contarElementosSegmento(matriz, k, vetor);
+
+    int vetorOrdenado[k];
+
+    for (int i = 0; i < k; i++) {
+        vetorOrdenado[i] = vetor[i];
+    }
+
+    ordena(vetorOrdenado, k);
+
+    contaTipoSegmento(matriz, k, vetor, numeroSegmentos);
     
     for (int j = 0; j < 2; j++) {
         for (int i = 0; i < numeroSegmentos; i++) {
