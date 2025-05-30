@@ -119,7 +119,11 @@ int main () {
     
     for (int j = 0; j < 2; j++) {
         for (int i = 0; i < numeroSegmentos; i++) {
-            printf("%d ", matriz[j][i]);
+            if (i == numeroSegmentos - 1) {
+                printf("%d", matriz[j][i]);
+            } else {
+                printf("%d ", matriz[j][i]);
+            }
         }
         printf("\n");
     }
