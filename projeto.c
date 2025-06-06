@@ -1,3 +1,13 @@
+/****************
+
+LAED1 - Projeto (Parte I) - Busca por padrão em sequência
+
+Alunos(as): Felipe Lara Alves Braga
+
+Data: 06/06/2025
+
+****************/
+
 #include <stdio.h>
 #include <stdlib.h>
 
