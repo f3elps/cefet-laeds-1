@@ -35,7 +35,11 @@ void Insere(TipoItem x, TipoLista *Lista) {
   Lista->Ultimo->Prox = NULL;
 }
 
+
+// Função simples para impressão de uma lista até seu último elemento
+// Foi necessária ao debugar o programa
 void imprimeLista(TipoLista lista) {
+    printf("\n");
     TipoApontador p = lista.Primeiro->Prox;
     while (p != NULL) {
         printf("%d", p->Item.Chave);
@@ -48,23 +52,29 @@ void imprimeLista(TipoLista lista) {
 }
 
 
-int detectaPadrao(TipoLista *tiposDeSegmentos) {
-    TipoApontador p = tiposDeSegmentos->Primeiro->Prox;
+// Modifiquei a função que detecta padrão para já retornar o ponto médio do padrão, se o padrão for encontrado
+int detectaPadraoComPontoMedio(TipoLista *tipos) {
+    TipoApontador p = tipos->Primeiro->Prox;
+    int indice = 0;
 
-    if (Vazia(*tiposDeSegmentos) || tiposDeSegmentos->Ultimo == tiposDeSegmentos->Primeiro)
-        return 0; // lista vazia ou sem segmentos
-    // Verifica se a sequência de tipos é 1, 3, 2, 3, 1
     while (p && p->Prox && p->Prox->Prox && p->Prox->Prox->Prox && p->Prox->Prox->Prox->Prox) {
         int a = p->Item.Chave;
         int b = p->Prox->Item.Chave;
         int c = p->Prox->Prox->Item.Chave;
         int d = p->Prox->Prox->Prox->Item.Chave;
         int e = p->Prox->Prox->Prox->Prox->Item.Chave;
-        if (a == 1 && b == 3 && c == 2 && d == 3 && e == 1)
-        return 1;
+
+        // Verifica se o padrão das linhas é 1, 3, 2, 3, 1
+        if (a == 1 && b == 3 && c == 2 && d == 3 && e == 1) {
+            return indice + 2; // ponto médio do padrão
+        }
+
+        // O indice controla em que posição da linha está sendo verificado o padrão
+        indice++;
         p = p->Prox;
     }
-    return 0;
+
+    return -1; // padrão não foi encontrado
 }
 
 int valorJaExiste(TipoLista *lista, int valor) {
@@ -161,60 +171,64 @@ void contaTipoSegmento(
     Insere(tipoItem, tipos);
 }
 
-int main() {
-    // K é a quantidade de pixels e L é a quantidade de linhas
-    int k, valor, l;
-    scanf("%d", &l);
-    scanf("%d", &k);
-
-    TipoLista sequencia, linha, encontrouSequenciaLinha, tiposSegmentosLinha;
-    FLVazia(&sequencia);
-    FLVazia(&encontrouSequenciaLinha);
-    FLVazia(&tiposSegmentosLinha);
-
-    // Preenche a lista com k elementos
-    for (int i = 0; i < k; i++) {
-        scanf("%d", &valor);
-        TipoItem item;
-        item.Chave = valor;
-        Insere(item, &sequencia);
+// Função que esvazia a lista, será necessária para a verificação de se encontrou padrão em cada linha
+// Evita vazamentos de memória
+void liberaLista(TipoLista *lista) {
+    TipoApontador atual = lista->Primeiro;
+    while (atual != NULL) {
+        TipoApontador proximo = atual->Prox;
+        free(atual);
+        atual = proximo;
     }
-    
-    // Separa as linhas e, para cada linha, verifica se o padrão foi encontrado e armazena o resultado na lista encontrouSequenciaLinha
-    TipoApontador atual = sequencia.Primeiro->Prox;
+    lista->Primeiro = NULL;
+    lista->Ultimo = NULL;
+}
 
-    for(int i = 0; i < k / l; i++) {
-        FLVazia(&linha);
-        FLVazia(&tiposSegmentosLinha); // reinicializa para cada linha
+int main() {
+    int l, k, valor;
+    scanf("%d", &l);
 
-        for (int j = 0; j < l && atual != NULL; j++) {
-            Insere(atual->Item, &linha);
-            atual = atual->Prox;
+    int linhasComPadrao = 0;
+
+    TipoLista pontosMedios;
+    FLVazia(&pontosMedios);
+
+    // Percorre todas as linhas e escaneia todos os elementos de cada linha
+    for (int i = 0; i < l; i++) {
+        scanf("%d", &k);
+        TipoLista sequencia, tipos;
+        FLVazia(&sequencia);
+        FLVazia(&tipos);
+
+        for (int j = 0; j < k; j++) {
+            scanf("%d", &valor);
+            TipoItem item = { .Chave = valor };
+            Insere(item, &sequencia);
         }
 
-        contaTipoSegmento(&linha, &tiposSegmentosLinha);
-        int padrao = detectaPadrao(&tiposSegmentosLinha);
-        TipoItem item;
-        item.Chave = padrao;
-        Insere(item, &encontrouSequenciaLinha);
+        // Para cada linha, verifica se o padrão foi encontrado.
+        contaTipoSegmento(&sequencia, &tipos);
+        int pontoMedio = detectaPadraoComPontoMedio(&tipos);
+        if (pontoMedio != -1) {
+            linhasComPadrao++;
+            TipoItem pontoMedioASerInseridoNaLista;
+            pontoMedioASerInseridoNaLista.Chave = pontoMedio;
+            Insere(pontoMedioASerInseridoNaLista, &pontosMedios);
+        }
+
+        liberaLista(&sequencia);
+        liberaLista(&tipos);
     }
 
+    imprimeLista(pontosMedios);
 
-    imprimeLista(encontrouSequenciaLinha);
+    float proporcao = (float)linhasComPadrao / l;
 
-    // Análise de segmentos
-    TipoLista segmentos, segmentosOrdenados, tipos;
-    FLVazia(&segmentos);
-    FLVazia(&segmentosOrdenados);
-    FLVazia(&tipos);
-
-    contaTipoSegmento(&sequencia, &tipos);
-
-    int padrao = detectaPadrao(&tipos);
-    if (padrao) {
-        printf("Resultado: Padrao encontrado.\n");
+    // É feita a verificação para garantir que pelo menos 70% das linhas encontraram padrão
+    if (proporcao < 0.7f) {
+        printf("Resultado: Formato da pista nao estimado.\n");
     } else {
-        printf("Resultado: Padrao nao encontrado.\n");
+        printf("Resultado: Padrao reconhecido em %.0f%% das linhas.\n", proporcao * 100);
     }
 
     return 0;
